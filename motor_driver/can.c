@@ -117,8 +117,7 @@ void canzero_exit_critical() { mutex_unlock(&critical_mutex); }
 static uint32_t next_update = 0;
 
 void canzero_request_update(uint32_t time) {
-  uint32_t now = time_now_ms();
-  next_update = now + time;
+  next_update = time;
 }
 
 static void *can0_rx_loop(void *_) {
