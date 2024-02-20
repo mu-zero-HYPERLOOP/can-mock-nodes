@@ -14,8 +14,114 @@
 int main() {
   can_start();
 
+  float mock_airgap = 12;
+  uint32_t prev_transition = 0;
   while (1) {
-    usleep(100);
+    float temperature = 0;
+
+    // State Machine
+    mlu_state state = canzero_get_state();
+    mlu_state next_state = state;
+    mlu_command command = canzero_get_command();
+
+    switch (state) {
+    case mlu_state_INIT:
+      if (time_now_ms() > 2000) {
+        next_state = mlu_state_IDLE;
+      }
+      break;
+    case mlu_state_IDLE:
+      mock_airgap = 12;
+      switch (command) {
+      case mlu_command_PRECHARGE:
+        next_state = mlu_state_PRECHARGE;
+        break;
+      default:
+        break;
+      }
+      break;
+    case mlu_state_PRECHARGE:
+      mock_airgap = 12;
+      if (time_now_ms() - prev_transition > 1000) {
+        next_state = mlu_state_READY;
+      }
+      switch (command) {
+      case mlu_command_DISCONNECT:
+        next_state = mlu_state_IDLE;
+        break;
+      default:
+        break;
+      }
+      break;
+    case mlu_state_READY:
+      mock_airgap = 12;
+      switch (command) {
+      case mlu_command_START:
+        next_state = mlu_state_START;
+        break;
+      case mlu_command_DISCONNECT:
+        next_state = mlu_state_IDLE;
+        break;
+      default:
+        break;
+      }
+      break;
+    case mlu_state_START:
+      temperature = 100;
+      mock_airgap -= 0.3;
+      if (mock_airgap <= 6) {
+        next_state = mlu_state_CONTROL;
+      }
+      switch (command) {
+      case mlu_command_DISCONNECT:
+        next_state = mlu_state_IDLE;
+        break;
+      case mlu_command_STOP:
+      case mlu_command_ABORT:
+        next_state = mlu_state_STOP;
+        break;
+      default:
+        break;
+      }
+      break;
+    case mlu_state_CONTROL:
+      temperature = 100;
+      switch (command) {
+      case mlu_command_DISCONNECT:
+        next_state = mlu_state_IDLE;
+        break;
+      case mlu_command_STOP:
+      case mlu_command_ABORT:
+        next_state = mlu_state_STOP;
+      default:
+        break;
+      }
+      break;
+    case mlu_state_STOP:
+      temperature = 100;
+      mock_airgap += 0.3;
+      if (mock_airgap >= 12) {
+        next_state = mlu_state_READY;
+      }
+      switch (command) {
+      case mlu_command_DISCONNECT:
+        next_state = mlu_state_IDLE;
+        break;
+      default:
+        break;
+      }
+      break;
+    }
+
+    if (state != next_state) {
+      prev_transition = time_now_ms();
+      canzero_set_state(next_state);
+    }
+
+    canzero_set_magnet_temperature(temperature);
+    canzero_set_air_gap(mock_airgap);
+
+    usleep(100000);
   }
   return 0;
 }
