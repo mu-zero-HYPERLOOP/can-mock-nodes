@@ -31,6 +31,8 @@ int main() {
   canzero_set_hp_channel2_control( pdu_channel_control_OFF);
   canzero_set_hp_channel3_control( pdu_channel_control_OFF);
   canzero_set_hp_channel4_control( pdu_channel_control_OFF);
+  canzero_set_sdc_status(sdc_status_CLOSED);
+
 
   while (1) {
     float x = ((float)rand()/(float)(RAND_MAX)) * 0.3 - 0.15;
@@ -160,7 +162,8 @@ int main() {
       canzero_set_hp_channel4_status(pdu_channel_status_OFF);
       canzero_set_hp_channel4_current(0.01 + x * 0.05);
     }
-    usleep(100);
+    canzero_update_continue(canzero_get_time());
+    usleep(1000);
   }
   return 0;
 }

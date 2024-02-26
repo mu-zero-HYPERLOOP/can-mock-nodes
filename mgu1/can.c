@@ -114,11 +114,7 @@ void canzero_enter_critical() { mutex_lock(&critical_mutex); }
 
 void canzero_exit_critical() { mutex_unlock(&critical_mutex); }
 
-static uint32_t next_update = 0;
-
-void canzero_request_update(uint32_t time) {
-  next_update = time;
-}
+void canzero_request_update(uint32_t time) { }
 
 static void *can0_rx_loop(void *_) {
   while (1) {
@@ -136,21 +132,6 @@ static void *can1_rx_loop(void *_) {
   return NULL;
 }
 
-static void *update_loop(void *_) {
-  while (1) {
-    uint32_t timeout = next_update - time_now_ms();
-    for (uint32_t i = 0; i < timeout * 1000; i++) {
-      usleep(1);
-      uint32_t now = time_now_ms();
-      if (now >= next_update)
-        break;
-    }
-    uint32_t now = time_now_ms();
-    next_update = canzero_update_continue(now);
-  }
-  return NULL;
-}
-
 thread can0_rx_thread;
 thread can1_rx_thread;
 thread canzero_thread;
@@ -161,5 +142,4 @@ void can_start() {
   canzero_init();
   thread_create(&can0_rx_thread, can0_rx_loop, NULL);
   thread_create(&can1_rx_thread, can1_rx_loop, NULL);
-  thread_create(&canzero_thread, update_loop, NULL);
 }

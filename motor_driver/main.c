@@ -24,6 +24,8 @@ int main() {
     motor_command command = canzero_get_command();
     motor_state next_state = state;
 
+    sdc_status sdc_status = sdc_status_OPEN;
+
     switch (state) {
     case motor_state_INIT:
       if (time_now_ms() > 1000) {
@@ -40,6 +42,7 @@ int main() {
       }
       break;
     case motor_state_PRECHARGE:
+      sdc_status = sdc_status_CLOSED;
       if (time_now_ms() - last_transition > 1000) {
         next_state = motor_state_READY;
         break;
@@ -52,6 +55,7 @@ int main() {
       }
       break;
     case motor_state_READY:
+      sdc_status = sdc_status_CLOSED;
       switch (command) {
       case motor_command_DISCONNECT:
         next_state = motor_state_IDLE;
@@ -64,6 +68,7 @@ int main() {
       }
       break;
     case motor_state_START:
+      sdc_status = sdc_status_CLOSED;
       acceleration = 1;
       if (velocity > 3) {
         next_state = motor_state_CONTROL;
@@ -80,6 +85,7 @@ int main() {
       }
       break;
     case motor_state_CONTROL:
+      sdc_status = sdc_status_CLOSED;
       switch (command) {
       case motor_command_DECELERATE:
         next_state = motor_state_STOP;
@@ -92,6 +98,7 @@ int main() {
       }
       break;
     case motor_state_STOP:
+      sdc_status = sdc_status_CLOSED;
       acceleration = -1;
       if (velocity <= 0) {
         next_state = motor_state_READY;
@@ -115,8 +122,10 @@ int main() {
     velocity += acceleration;
 
     canzero_set_local_acceleration(acceleration);
+    canzero_set_sdc_status(sdc_status);
+    canzero_update_continue(canzero_get_time());
 
-    usleep(100000);
+    usleep(1000);
   }
 
   return 0;

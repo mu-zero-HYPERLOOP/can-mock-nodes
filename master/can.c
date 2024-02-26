@@ -110,15 +110,20 @@ uint32_t canzero_get_time() { return time_now_ms(); }
 
 static mutex critical_mutex;
 
-void canzero_enter_critical() { mutex_lock(&critical_mutex); }
+void canzero_enter_critical() { 
+  mutex_lock(&critical_mutex); 
+}
 
-void canzero_exit_critical() { mutex_unlock(&critical_mutex); }
+void canzero_exit_critical() { 
+  mutex_unlock(&critical_mutex); 
+}
 
 static uint32_t next_update = 0;
 
 void canzero_request_update(uint32_t time) {
   uint32_t now = time_now_ms();
-  next_update = now + time;
+  next_update = time;
+  printf("request update %u\n", next_update);
 }
 
 static void *can0_rx_loop(void *_) {
@@ -141,7 +146,7 @@ static void *update_loop(void *_) {
   while (1) {
     uint32_t timeout = next_update - time_now_ms();
     for (uint32_t i = 0; i < timeout * 1000; i++) {
-      usleep(1);
+      usleep(100);
       uint32_t now = time_now_ms();
       if (now >= next_update)
         break;

@@ -118,6 +118,9 @@ int main() {
     canzero_set_sdc_status(sdc_status);
     canzero_set_magnet_temperature_port(temperature);
     canzero_set_magnet_temperature_starboard(temperature);
+
+    canzero_update_continue(canzero_get_time());
+    usleep(1000);
   }
   return 0;
 }

@@ -16,6 +16,7 @@ int main() {
 
   uint32_t prev_state_transition = 0;
   while (1) {
+
     // SDC-Status
     sdc_status sdc_status =
         canzero_get_mlu1_sdc_status() == sdc_status_CLOSED &&
@@ -296,7 +297,7 @@ int main() {
       canzero_set_global_state(next_state);
     }
 
-    usleep(100000);
+    usleep(1000);
   }
   return 0;
 }

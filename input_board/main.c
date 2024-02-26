@@ -14,6 +14,8 @@
 int main() {
   can_start();
 
+  canzero_set_sdc_status(sdc_status_CLOSED);
+
   while (1) {
     usleep(100);
   }

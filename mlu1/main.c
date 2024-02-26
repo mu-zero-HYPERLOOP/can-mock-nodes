@@ -72,7 +72,7 @@ int main() {
     case mlu_state_START:
       sdc_status = sdc_status_CLOSED;
       temperature = 100;
-      mock_airgap -= 0.3;
+      mock_airgap -= 0.003;
       if (mock_airgap <= 6) {
         next_state = mlu_state_CONTROL;
       }
@@ -105,7 +105,7 @@ int main() {
     case mlu_state_STOP:
       sdc_status = sdc_status_CLOSED;
       temperature = 100;
-      mock_airgap += 0.3;
+      mock_airgap += 0.003;
       if (mock_airgap >= 12) {
         next_state = mlu_state_READY;
       }
@@ -127,7 +127,9 @@ int main() {
     canzero_set_magnet_temperature(temperature);
     canzero_set_air_gap(mock_airgap);
 
-    usleep(100000);
+    canzero_update_continue(canzero_get_time());
+
+    usleep(1000);
   }
   return 0;
 }

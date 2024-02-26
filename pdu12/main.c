@@ -162,7 +162,8 @@ int main() {
       canzero_set_hp_channel4_status(pdu_channel_status_OFF);
       canzero_set_hp_channel4_current(0);
     }
-    usleep(100);
+    canzero_update_continue(canzero_get_time());
+    usleep(1000);
   }
   return 0;
 }
